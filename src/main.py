@@ -5,7 +5,7 @@ import dill
 import flask
 import pandas as pd
 
-from src.model import make_model
+from model import make_model
 
 import logging
 
@@ -43,15 +43,15 @@ def general():
 
 @app.route("/predict", methods=["POST"])
 def predict():
+    logger.info(f'/predict invoked')
     global g_model
     response = {
         'success': False,
         'prediction': None,
-        'error': None,
     }
 
     request = flask.request.get_json()
-    logger.info(f'Data: request={request}')
+    logger.info(f'predict() request is {request}')
     try:
         data = {k: [v] for k, v in request.items()}
         df = pd.DataFrame(data)
@@ -62,6 +62,7 @@ def predict():
         logger.warning(f'Exception: {str(e)}')
         response['error'] = str(e)
 
+    logger.info(f'predict() response is {response}')
     return flask.jsonify(response)
 
 
@@ -75,14 +76,15 @@ if __name__ == "__main__":
     if command == 'model':
         logger.info(f'Creating model...')
         model = make_model()
-        logger.info(f'Saving model to: {model_file}')
+        logger.info(f'Saving model to {model_file}')
         save_model(model, model_file)
 
     else:
+        host = os.environ.get('HOST', '0.0.0.0')
         port = int(os.environ.get('PORT', 8180))
 
-        logger.info(f'Loading model from: {model_file}')
+        logger.info(f'Loading model from {model_file}')
         g_model = load_model(model_file)
 
-        logger.info(f'Running model server at port: {port}')
-        app.run(debug=True, port=port)
+        logger.info(f'Running model server at http://{host}:{port}')
+        app.run(host=host, debug=True, port=port)

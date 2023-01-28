@@ -1,3 +1,2 @@
 #!/bin/sh
-
-python /app/main.py
+python src/main.py

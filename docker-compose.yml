@@ -5,9 +5,10 @@ services:
     build: .
     restart: always
     ports:
-      - '8010:8010'
+      - '8180:8180'
     environment:
       - MODEL=/app/models/model.dill
+      - PORT=8180
     volumes:
       - './models:/app/models'
 
